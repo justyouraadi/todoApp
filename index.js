@@ -16,7 +16,7 @@ app.get('/ping', (req, res) => {
 app.get('/todos', async (req, res) => {
     try {
         const todos = await Todo.find();
-        return res.status(200).json({status:true,todos});
+        return res.status(200).json({ status: true, todos });
     } catch (err) {
         return res.status(500).json({ message: 'Error fetching todos', error: err.message });
     }
@@ -39,8 +39,32 @@ app.post('/todos', async (req, res) => {
     }
 })
 
-app.listen(port,async () => {
-    await connectDB();
-  console.log(`Example app listening on port ${port}`)
+app.patch('/todos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description } = req.body;
+
+        if (!title || !description) {
+            return res.status(400).json({ message: 'Title and description are required.' });
+        }
+
+        const updatedTodo = await Todo.findByIdAndUpdate(
+            id,
+            { title, description }
+        );
+
+        if (!updatedTodo) {
+            return res.status(404).json({ message: 'Todo not found' });
+        }
+
+        return res.status(200).json({ message: "Todo updated successfully", todo: updatedTodo });
+
+    } catch (error) {
+        return res.status(500).json({ message: 'Error updating todo', error: error.message });
+    }
 })
-    
+
+app.listen(port, async () => {
+    await connectDB();
+    console.log(`Example app listening on port ${port}`)
+})
