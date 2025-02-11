@@ -64,6 +64,24 @@ app.patch('/todos/:id', async (req, res) => {
     }
 })
 
+app.delete('/todos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(id);
+        
+        const deletedTodo = await Todo.findByIdAndDelete(id);
+
+        if (!deletedTodo) {
+            return res.status(404).json({ message: 'Todo not found' });
+        }
+
+        return res.status(200).json({ message: "Todo deleted successfully", todo: deletedTodo });
+
+    } catch (error) {
+        return res.status(500).json({ message: 'Error deleting todo', error: error.message });
+    }
+})
+
 app.listen(port, async () => {
     await connectDB();
     console.log(`Example app listening on port ${port}`)
