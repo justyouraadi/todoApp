@@ -15,7 +15,14 @@ app.get('/ping', (req, res) => {
 
 app.get('/todos', async (req, res) => {
     try {
-        const todos = await Todo.find();
+        const { title } = req.query;
+
+        let todos;
+        if (title) {
+            todos = await Todo.find({ title: { $regex: title, $options: 'i' } });
+        } else {
+            todos = await Todo.find();
+        }
         return res.status(200).json({ status: true, todos });
     } catch (err) {
         return res.status(500).json({ message: 'Error fetching todos', error: err.message });
